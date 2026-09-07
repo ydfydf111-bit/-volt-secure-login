@@ -1,0 +1,16 @@
+{
+  "name": "robot-login-secure",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "argon2": "^0.44.0",
+    "better-sqlite3": "^12.4.1",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.1.0"
+  }
+}
