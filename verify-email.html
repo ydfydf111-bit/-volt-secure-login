@@ -1,0 +1,4 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Verify email • Volt</title>
+<style>body{font-family:system-ui;display:grid;place-items:center;min-height:100vh;background:#08101e;color:white}.box{padding:30px;border:1px solid #ffffff22;border-radius:20px;background:#111b30}a{color:#62e6ff}</style>
+<div class="box"><h1>Volt Email Verification</h1><p id="m">Verifying…</p><a href="/">Back to login</a></div>
+<script>(async()=>{const t=new URLSearchParams(location.search).get("token");try{const r=await fetch("/api/verify-email?token="+encodeURIComponent(t));const d=await r.json();document.querySelector("#m").textContent=d.message||d.error}catch(e){document.querySelector("#m").textContent="Verification failed."}})()</script>

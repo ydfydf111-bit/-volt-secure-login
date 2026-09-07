@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Volt • Secure Account</title>
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:system-ui;background:radial-gradient(circle at 20% 10%,#28406f,#0a1020 55%,#050810);color:#edf4ff;padding:24px}
+.wrap{width:min(1050px,100%);margin:auto}.card{background:#0c1426dd;border:1px solid #ffffff18;border-radius:26px;padding:28px;box-shadow:0 25px 80px #0008;margin-bottom:20px}
+.grid{display:grid;grid-template-columns:280px 1fr;gap:20px}.robotbox{display:grid;place-items:center;min-height:360px}.robot{width:190px;height:250px;position:relative}.head{position:absolute;top:30px;left:10px;right:10px;height:160px;border-radius:50px;background:linear-gradient(145deg,#e2eafa,#657896);border:5px solid #34445f}.antenna{position:absolute;left:50%;top:-42px;width:7px;height:43px;background:#7084a5}.antenna:after{content:"";position:absolute;top:-13px;left:50%;transform:translateX(-50%);width:22px;height:22px;border-radius:50%;background:#62e6ff;box-shadow:0 0 22px #62e6ff}.face{position:absolute;left:20px;right:20px;top:50px;height:65px;border-radius:25px;background:#111a2d;display:flex;justify-content:center;align-items:center;gap:32px}.eye{width:22px;height:32px;border-radius:50%;background:#62e6ff;box-shadow:0 0 18px #62e6ff}.mouth{position:absolute;bottom:20px;left:50%;width:55px;height:10px;transform:translateX(-50%);border-bottom:4px solid #23344e;border-radius:50%}.chest{position:absolute;bottom:0;left:40px;right:40px;height:75px;border-radius:25px;background:#334563;border:4px solid #1b2940}.core{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:30px;height:30px;border-radius:50%;background:#62e6ff;box-shadow:0 0 24px #62e6ff}
+h1{margin:0 0 5px}h2{margin-top:0}.muted{color:#9eabc2}input,button{font:inherit}input{width:100%;padding:13px;margin:7px 0 13px;border-radius:12px;border:1px solid #334561;background:#091122;color:white}button{border:0;border-radius:12px;padding:12px 15px;background:#62e6ff;color:#06101d;font-weight:800;cursor:pointer}button.alt{background:#22304a;color:white}button.danger{background:#ff7084;color:#18070b}.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1}.msg{min-height:24px;color:#62e6ff}.tabs{display:flex;gap:8px;margin-bottom:18px}.tabs button{background:#1a2740;color:white}.tabs button.active{background:#62e6ff;color:#06101d}.hidden{display:none!important}.user{padding:12px;border:1px solid #ffffff12;border-radius:13px;margin:8px 0}.small{font-size:13px;color:#9eabc2}
+@media(max-width:700px){.grid{grid-template-columns:1fr}.robotbox{min-height:270px}.row{flex-direction:column}}
+</style></head>
+<body><div class="wrap">
+<div id="auth" class="card grid">
+<section class="robotbox"><div class="robot"><div class="head"><div class="antenna"></div><div class="face"><i class="eye"></i><i class="eye"></i></div><div class="mouth"></div></div><div class="chest"><div class="core"></div></div></div></section>
+<section><h1 id="title">Welcome back 👋</h1><p class="muted" id="sub">Login securely to Volt.</p>
+<form id="form"><div id="unameBox" class="hidden"><label>Username</label><input id="uname" autocomplete="username"></div>
+<label>Email</label><input id="email" type="email" required autocomplete="email"><label>Password</label><input id="pass" type="password" minlength="12" required autocomplete="current-password">
+<button id="submit">Login</button></form><p id="msg" class="msg"></p><div class="row"><button class="alt" id="mode" type="button">Create account</button><button class="alt" id="forgot" type="button">Forgot password?</button></div></section></div>
+
+<div id="dashboard" class="hidden">
+<div class="card"><div class="row"><div><h1>Volt Dashboard 🤖</h1><p id="welcome" class="muted"></p></div><button id="logout" class="danger">Logout</button></div></div>
+<div class="card"><div class="tabs"><button class="active" data-tab="profile">Profile</button><button data-tab="password">Password</button><button data-tab="verify">Email</button><button id="adminTab" data-tab="admin" class="hidden">Admin</button></div>
+<div id="profile" class="tab"><h2>Profile</h2><label>Username</label><input id="newUsername"><button id="saveProfile">Save profile</button><p id="profileMsg" class="msg"></p></div>
+<div id="password" class="tab hidden"><h2>Change password</h2><input id="oldP" type="password" placeholder="Current password"><input id="newP" type="password" minlength="12" placeholder="New password (12+ chars)"><button id="changeP">Change password</button><p id="passMsg" class="msg"></p></div>
+<div id="verify" class="tab hidden"><h2>Email verification</h2><p class="muted">For this local demo, the verification link is shown below. In production send it through your email provider.</p><button id="sendVerify">Generate verification link</button><p id="verifyMsg" class="msg"></p></div>
+<div id="admin" class="tab hidden"><h2>Admin Dashboard</h2><p class="small">Manage accounts. Only users marked as admin can access this area.</p><div id="users"></div></div>
+</div></div>
+</div>
+<script>
+const $=s=>document.querySelector(s);let register=false,user=null;
+const msg=(el,t,err=false)=>{el.textContent=t;el.style.color=err?"#ff8090":"#62e6ff"};
+async function api(url,opt={}){const r=await fetch(url,{headers:{"Content-Type":"application/json"},...opt});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||"Request failed");return d}
+function renderAuth(){ $("#title").textContent=register?"Create your account 🤖":"Welcome back 👋";$("#sub").textContent=register?"Create a secure Volt account.":"Login securely to Volt.";$("#unameBox").classList.toggle("hidden",!register);$("#submit").textContent=register?"Create account":"Login";$("#mode").textContent=register?"Back to login":"Create account";}
+$("#mode").onclick=()=>{register=!register;renderAuth()};
+$("#form").onsubmit=async e=>{e.preventDefault();msg($("#msg"),"Working…");try{const d=await api(register?"/api/register":"/api/login",{method:"POST",body:JSON.stringify(register?{username:$("#uname").value,email:$("#email").value,password:$("#pass").value}:{email:$("#email").value,password:$("#pass").value})});user=d.user;showDashboard()}catch(x){msg($("#msg"),x.message,true)}};
+$("#forgot").onclick=async()=>{const email=prompt("Enter your account email:");if(!email)return;try{const d=await api("/api/forgot-password",{method:"POST",body:JSON.stringify({email})});alert(d.devLink?d.message+"\\n\\nDEV link:\\n"+d.devLink:d.message)}catch(x){alert(x.message)}};
+function showDashboard(){ $("#auth").classList.add("hidden");$("#dashboard").classList.remove("hidden");$("#welcome").textContent=`Logged in as ${user.username} • ${user.email}`;$("#newUsername").value=user.username;$("#adminTab").classList.toggle("hidden",!user.isAdmin);if(user.isAdmin)loadUsers();}
+$("#logout").onclick=async()=>{await api("/api/logout",{method:"POST"});location.reload()};
+document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.add("hidden"));$("#"+b.dataset.tab).classList.remove("hidden");document.querySelectorAll("[data-tab]").forEach(x=>x.classList.remove("active"));b.classList.add("active");if(b.dataset.tab==="admin")loadUsers()});
+$("#saveProfile").onclick=async()=>{try{const d=await api("/api/profile",{method:"PATCH",body:JSON.stringify({username:$("#newUsername").value})});user.username=d.username;$("#welcome").textContent=`Logged in as ${user.username} • ${user.email}`;msg($("#profileMsg"),"Profile saved.")}catch(x){msg($("#profileMsg"),x.message,true)}};
+$("#changeP").onclick=async()=>{try{const d=await api("/api/change-password",{method:"POST",body:JSON.stringify({oldPassword:$("#oldP").value,newPassword:$("#newP").value})});msg($("#passMsg"),d.message);$("#oldP").value=$("#newP").value=""}catch(x){msg($("#passMsg"),x.message,true)}};
+$("#sendVerify").onclick=async()=>{try{const d=await api("/api/send-verification",{method:"POST"});msg($("#verifyMsg"),d.devLink?d.devLink:d.message)}catch(x){msg($("#verifyMsg"),x.message,true)}};
+async function loadUsers(){try{const d=await api("/api/admin/users");$("#users").innerHTML=d.users.map(u=>`<div class="user"><b>${esc(u.username)}</b> — ${esc(u.email)}<div class="small">ID ${u.id} • verified: ${!!u.email_verified} • admin: ${!!u.is_admin} • ${u.created_at}</div><div class="row" style="margin-top:8px"><button onclick="toggleAdmin(${u.id},${!u.is_admin})">${u.is_admin?"Remove admin":"Make admin"}</button><button class="danger" onclick="deleteUser(${u.id})">Delete</button></div></div>`).join("")}catch(x){$("#users").textContent=x.message}}
+async function toggleAdmin(id,val){try{await api("/api/admin/users/"+id,{method:"PATCH",body:JSON.stringify({isAdmin:val})});loadUsers()}catch(x){alert(x.message)}}
+async function deleteUser(id){if(!confirm("Delete this user?"))return;try{await api("/api/admin/users/"+id,{method:"DELETE"});loadUsers()}catch(x){alert(x.message)}}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+fetch("/api/me").then(r=>r.ok?r.json():null).then(d=>{if(d?.loggedIn){user=d.user;showDashboard()}});
+</script></body></html>
